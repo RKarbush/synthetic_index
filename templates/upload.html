@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="canonical" href="https://getbootstrap.com/docs/3.3/examples/starter-template/">
+
+  <title>Wealth About</title>
+
+  <!-- Bootstrap core CSS -->
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  <!-- Custom styles for this template -->
+  <style>
+    body {
+      padding-top: 50px;
+    }
+    .starter-template {
+      padding: 40px 15px;
+      text-align: center;
+    }
+    .center {
+      margin: auto;
+      width: 50%;
+      border: 3px solid green;
+      padding: 10px;
+    }
+    .center input {
+      margin: auto;
+    }
+
+    .upload_file {
+      margin-top: 5px;
+    }
+
+    .result_tab {
+      margin-top: 10px;
+      display: none;
+    }
+
+    #loading {
+      display: none;
+      margin: auto;
+    }
+
+    .index_btn {
+      display: none;
+      margin: 5px auto auto auto;
+    }
+
+    .export_excel {
+      display: none;
+      margin: auto
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Wealth About</a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="starter-template">
+      <h1>Synthetic Index Calculator</h1>
+      <p class="lead">Upload an Excel file and click on "Get Synthetic Index" button <br> to receive an array as a result in a box bellow or download to excel.</p>
+
+      <form action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data" id="fileForm">
+        {% csrf_token %}
+        <div class="center">
+          {{ form.as_table }}
+        </div>
+        <input class="btn btn-primary btn-md upload_file" role="button" type="submit" value="Upload File" >
+      </form>
+      <img src="{% static 'synthetic_index/images/attente.gif' %}" alt="loading_gif" id="loading">
+      <button class="btn btn-success index_btn" >Get Synthetic Index</button>
+      <div class="center result_tab" id="result_tab">
+        <h4>Result: </h1>
+        <textarea id="result" name="result" rows="10" cols="50">
+          
+        </textarea>
+        <a class="export_excel" download><button class="btn btn-success">Excel</button></a>
+      </div>
+    </div>
+
+  </div><!-- /.container -->
+
+
+  <!-- Bootstrap core JavaScript
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+  <script>
+
+    function upload(event) {
+        event.preventDefault();
+        var data = new FormData($('#fileForm').get(0));
+        var csrftoken = Cookies.get('csrftoken');
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            headers: {
+            'X-CSRFToken': csrftoken
+            },
+            success: function(data) {
+                alert(data.message);
+                $(".index_btn").css("display", "block")          
+            }
+        });
+        return false;
+    }
+
+    $(function() {
+        $('form').submit(upload);
+    });
+
+    // Add the filename as a parameter to avoid the calculation if it already has the result stored
+    function get_synth_index(event) {
+      var filepath = $("#id_File_to_upload").val().split("\\");
+      $("#loading").css("display", "block")
+      $(".index_btn").css("display", "none")
+      event.preventDefault();
+        $.ajax({
+            url: '{% url "get_synth_index" %}',
+            type: 'GET',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                $("#result").html(data.result.join(", "));
+                $("#loading").css("display", "none")
+                $(".result_tab").css("display", "block")
+                $(".export_excel").css("display", "block")
+                $(".export_excel").attr("href", '{% static "synthetic_index/export/synthIndex.csv" %}');
+            }
+        });
+    }
+
+    $(function() {
+      $(".index_btn").click(get_synth_index);
+    });
+
+  </script>
+
+</body></html>
