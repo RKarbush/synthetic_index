@@ -32,3 +32,10 @@
 - Run server: $ python3 manage.py runserver.
 
 - You can find a xlsx as example in media/Data.xlsx
+
+- If you see some migration warnings, run
+ - $ python3 manage.py makemigrations
+ - $ python3 manage.py migrate
+
+
+If you find some problems or need some info, contact me at roman.karbushev@outlook.com
