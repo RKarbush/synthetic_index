@@ -31,7 +31,7 @@
 - Install requirements by running: $ pip install -r requirements.txt
 - Run server: $ python3 manage.py runserver.
 
-- You can find a xlsx as example in media/Data.xlsx
+- You can find an xlsx as example in media/Data.xlsx
 
 - If you see some migration warnings, run
  - $ python3 manage.py makemigrations
